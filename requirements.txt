@@ -1,4 +1,4 @@
 websockets
 openai-whisper
-torch
 numpy
+torch==2.8.0
