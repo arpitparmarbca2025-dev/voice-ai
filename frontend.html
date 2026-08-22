@@ -1,0 +1,1742 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Voice AI | Real-Time Dashboard</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+body{
+    font-family:Arial,Helvetica,sans-serif;
+
+    background:
+        radial-gradient(
+            circle at top left,
+            #123c68 0%,
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at bottom right,
+            #102c55 0%,
+            transparent 35%
+        ),
+        #050d18;
+
+    color:white;
+    min-height:100vh;
+}
+
+.container{
+    width:92%;
+    max-width:1400px;
+    margin:auto;
+    padding:30px 0;
+}
+
+header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:30px;
+}
+
+.logo{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.logo-icon{
+    width:55px;
+    height:55px;
+    border-radius:15px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #00c6ff,
+            #0072ff
+        );
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:28px;
+
+    box-shadow:
+        0 0 25px
+        rgba(0,170,255,0.45);
+}
+
+.logo h1{
+    font-size:26px;
+}
+
+.logo p{
+    color:#8da5c0;
+    margin-top:4px;
+    font-size:13px;
+}
+
+.system-status{
+    display:flex;
+    align-items:center;
+    gap:10px;
+
+    background:
+        rgba(255,255,255,0.05);
+
+    border:
+        1px solid
+        rgba(255,255,255,0.08);
+
+    padding:12px 18px;
+
+    border-radius:30px;
+}
+
+.status-dot{
+    width:10px;
+    height:10px;
+    background:#777;
+    border-radius:50%;
+}
+
+.status-dot.online{
+    background:#00ff88;
+
+    box-shadow:
+        0 0 12px #00ff88;
+}
+
+.status-dot.recording{
+    background:#00c6ff;
+
+    box-shadow:
+        0 0 12px #00c6ff;
+}
+
+.main-grid{
+    display:grid;
+
+    grid-template-columns:
+        1fr 1.2fr;
+
+    gap:20px;
+}
+
+.card{
+    background:
+        linear-gradient(
+            145deg,
+            rgba(20,43,70,0.85),
+            rgba(7,20,36,0.9)
+        );
+
+    border:
+        1px solid
+        rgba(0,174,255,0.15);
+
+    border-radius:20px;
+
+    padding:25px;
+
+    box-shadow:
+        0 15px 40px
+        rgba(0,0,0,0.25);
+
+    backdrop-filter:blur(10px);
+}
+
+.mic-card{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+
+    min-height:380px;
+}
+
+.mic-circle{
+    width:170px;
+    height:170px;
+
+    border-radius:50%;
+
+    background:
+        radial-gradient(
+            circle,
+            #0d4f83,
+            #06233e
+        );
+
+    border:
+        2px solid
+        rgba(0,190,255,0.5);
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:70px;
+
+    margin-bottom:20px;
+
+    transition:.3s;
+}
+
+.mic-circle.recording{
+    animation:pulse 1.2s infinite;
+
+    border-color:#00c6ff;
+
+    box-shadow:
+        0 0 20px #00c6ff,
+        0 0 60px rgba(0,198,255,0.4);
+}
+
+@keyframes pulse{
+
+    0%{
+        transform:scale(1);
+    }
+
+    50%{
+        transform:scale(1.07);
+    }
+
+    100%{
+        transform:scale(1);
+    }
+
+}
+
+.mic-title{
+    font-size:20px;
+    margin-bottom:7px;
+}
+
+.mic-subtitle{
+    color:#7892ad;
+    font-size:14px;
+    margin-bottom:20px;
+}
+
+.buttons{
+    display:flex;
+    gap:12px;
+}
+
+button{
+    border:none;
+
+    padding:13px 25px;
+
+    border-radius:10px;
+
+    font-size:15px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+    transition:.2s;
+}
+
+button:hover{
+    transform:translateY(-2px);
+}
+
+button:disabled{
+    opacity:.4;
+    cursor:not-allowed;
+    transform:none;
+}
+
+.start-btn{
+    background:
+        linear-gradient(
+            135deg,
+            #00c6ff,
+            #0072ff
+        );
+
+    color:white;
+
+    box-shadow:
+        0 8px 25px
+        rgba(0,150,255,.25);
+}
+
+.stop-btn{
+    background:#291820;
+
+    color:#ff6b7a;
+
+    border:
+        1px solid
+        rgba(255,80,100,.3);
+}
+
+.transcription{
+    min-height:380px;
+}
+
+.section-title{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.section-title h2{
+    font-size:18px;
+}
+
+.live-badge{
+    background:
+        rgba(0,255,150,.1);
+
+    color:#00ff9d;
+
+    border:
+        1px solid
+        rgba(0,255,150,.2);
+
+    padding:6px 10px;
+
+    border-radius:20px;
+
+    font-size:11px;
+}
+
+.transcription-box{
+    height:270px;
+
+    background:#040b14;
+
+    border-radius:14px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.06);
+
+    padding:20px;
+
+    color:#bcd0e5;
+
+    overflow-y:auto;
+
+    line-height:1.7;
+
+    font-size:16px;
+}
+
+.placeholder{
+    color:#50657c;
+    text-align:center;
+    margin-top:90px;
+}
+
+.final-text{
+    color:#e8f5ff;
+    font-size:17px;
+}
+
+.stats{
+    display:grid;
+
+    grid-template-columns:
+        repeat(4,1fr);
+
+    gap:15px;
+
+    margin-top:20px;
+}
+
+.stat-card{
+    background:
+        rgba(255,255,255,.035);
+
+    border:
+        1px solid
+        rgba(255,255,255,.07);
+
+    border-radius:15px;
+
+    padding:18px;
+}
+
+.stat-label{
+    color:#7189a3;
+    font-size:12px;
+    margin-bottom:10px;
+}
+
+.stat-value{
+    font-size:24px;
+    font-weight:bold;
+    color:#00c6ff;
+}
+
+.wave-card{
+    margin-top:20px;
+}
+
+.wave-container{
+    height:130px;
+
+    background:#040b14;
+
+    border-radius:14px;
+
+    padding:10px;
+}
+
+canvas{
+    width:100%;
+    height:100%;
+}
+
+.logs-card{
+    margin-top:20px;
+}
+
+.logs{
+    height:170px;
+
+    overflow-y:auto;
+
+    background:#040b14;
+
+    border-radius:12px;
+
+    padding:15px;
+
+    font-family:monospace;
+
+    font-size:12px;
+
+    color:#8fb5d5;
+}
+
+.log-line{
+    margin-bottom:8px;
+}
+
+@media(max-width:900px){
+
+    .main-grid{
+        grid-template-columns:1fr;
+    }
+
+    .stats{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+}
+
+@media(max-width:500px){
+
+    .stats{
+        grid-template-columns:1fr;
+    }
+
+    header{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:15px;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<header>
+
+<div class="logo">
+
+<div class="logo-icon">
+🎙️
+</div>
+
+<div>
+
+<h1>Voice AI</h1>
+
+<p>
+Real-Time Speech Processing Dashboard
+</p>
+
+</div>
+
+</div>
+
+<div class="system-status">
+
+<div
+id="statusDot"
+class="status-dot">
+</div>
+
+<span id="systemStatus">
+SYSTEM READY
+</span>
+
+</div>
+
+</header>
+
+
+<div class="main-grid">
+
+
+<div class="card mic-card">
+
+<div
+id="micCircle"
+class="mic-circle">
+
+🎤
+
+</div>
+
+<div class="mic-title">
+Microphone
+</div>
+
+<div
+id="micSubtitle"
+class="mic-subtitle">
+
+Ready to record
+
+</div>
+
+<div class="buttons">
+
+<button
+id="startBtn"
+class="start-btn">
+
+▶ START
+
+</button>
+
+<button
+id="stopBtn"
+class="stop-btn"
+disabled>
+
+⏹ STOP
+
+</button>
+
+</div>
+
+</div>
+
+
+<div class="card transcription">
+
+<div class="section-title">
+
+<h2>
+📝 Live Transcription
+</h2>
+
+<span class="live-badge">
+WHISPER
+</span>
+
+</div>
+
+<div
+id="transcriptionBox"
+class="transcription-box">
+
+<div class="placeholder">
+
+Waiting for audio...
+
+<br><br>
+
+Start the microphone to begin.
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<div class="stats">
+
+<div class="stat-card">
+
+<div class="stat-label">
+AVG LATENCY
+</div>
+
+<div
+id="latency"
+class="stat-value">
+
+--
+
+</div>
+
+</div>
+
+
+<div class="stat-card">
+
+<div class="stat-label">
+AUDIO CHUNKS
+</div>
+
+<div
+id="chunks"
+class="stat-value">
+
+0
+
+</div>
+
+</div>
+
+
+<div class="stat-card">
+
+<div class="stat-label">
+DURATION
+</div>
+
+<div
+id="duration"
+class="stat-value">
+
+00:00
+
+</div>
+
+</div>
+
+
+<div class="stat-card">
+
+<div class="stat-label">
+CONNECTION
+</div>
+
+<div
+id="connection"
+class="stat-value">
+
+READY
+
+</div>
+
+</div>
+
+</div>
+
+
+<div class="card wave-card">
+
+<div class="section-title">
+
+<h2>
+📊 Live Audio Activity
+</h2>
+
+<span>
+0.5s BUFFER
+</span>
+
+</div>
+
+<div class="wave-container">
+
+<canvas id="waveCanvas"></canvas>
+
+</div>
+
+</div>
+
+
+<div class="card logs-card">
+
+<div class="section-title">
+
+<h2>
+🖥️ System Activity
+</h2>
+
+</div>
+
+<div
+id="logs"
+class="logs">
+
+<div class="log-line">
+System initialized...
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   AUTOMATIC WEBSOCKET URL
+   ===================================================== */
+
+/*
+   If frontend is opened through Cloudflare:
+
+   https://something.trycloudflare.com
+
+   browser automatically connects to:
+
+   wss://something.trycloudflare.com
+
+   If opened locally:
+
+   http://localhost:5500
+
+   browser connects to:
+
+   ws://localhost:8765
+*/
+
+const BACKEND_URL =
+    location.hostname.includes("trycloudflare.com")
+    ? "wss://" + location.hostname
+    : "ws://localhost:8765";
+
+
+/* =====================================================
+   VARIABLES
+   ===================================================== */
+
+let websocket = null;
+
+let mediaRecorder = null;
+
+let audioStream = null;
+
+let audioContext = null;
+
+let analyser = null;
+
+let animationId = null;
+
+let chunkCount = 0;
+
+let startTime = null;
+
+let durationTimer = null;
+
+let recording = false;
+
+
+/* =====================================================
+   ELEMENTS
+   ===================================================== */
+
+const startBtn =
+    document.getElementById("startBtn");
+
+const stopBtn =
+    document.getElementById("stopBtn");
+
+const statusDot =
+    document.getElementById("statusDot");
+
+const systemStatus =
+    document.getElementById("systemStatus");
+
+const connection =
+    document.getElementById("connection");
+
+const micCircle =
+    document.getElementById("micCircle");
+
+const micSubtitle =
+    document.getElementById("micSubtitle");
+
+const chunks =
+    document.getElementById("chunks");
+
+const duration =
+    document.getElementById("duration");
+
+const latency =
+    document.getElementById("latency");
+
+const logs =
+    document.getElementById("logs");
+
+const transcriptionBox =
+    document.getElementById("transcriptionBox");
+
+
+/* =====================================================
+   LOG
+   ===================================================== */
+
+function addLog(message){
+
+    const line =
+        document.createElement("div");
+
+    line.className =
+        "log-line";
+
+    const currentTime =
+        new Date().toLocaleTimeString();
+
+    line.innerText =
+        `[${currentTime}] ${message}`;
+
+    logs.appendChild(line);
+
+    logs.scrollTop =
+        logs.scrollHeight;
+}
+
+
+/* =====================================================
+   START
+   ===================================================== */
+
+startBtn.onclick =
+async function(){
+
+    if(recording){
+        return;
+    }
+
+    try{
+
+        addLog(
+            "🔗 Connecting to Voice AI backend..."
+        );
+
+        systemStatus.innerText =
+            "CONNECTING...";
+
+        connection.innerText =
+            "CONNECTING";
+
+
+        websocket =
+            new WebSocket(
+                BACKEND_URL
+            );
+
+
+        websocket.onopen =
+        async function(){
+
+            try{
+
+                statusDot
+                    .classList
+                    .add("online");
+
+                systemStatus.innerText =
+                    "SYSTEM CONNECTED";
+
+                connection.innerText =
+                    "ONLINE";
+
+                addLog(
+                    "✅ WebSocket connected"
+                );
+
+
+                /* MICROPHONE */
+
+                if(
+                    !navigator.mediaDevices ||
+                    !navigator.mediaDevices.getUserMedia
+                ){
+
+                    throw new Error(
+                        "Microphone API unavailable. Use HTTPS."
+                    );
+
+                }
+
+
+                audioStream =
+                    await navigator
+                    .mediaDevices
+                    .getUserMedia({
+                        audio:true
+                    });
+
+
+                addLog(
+                    "🎤 Microphone permission granted"
+                );
+
+
+                /* AUDIO CONTEXT */
+
+                audioContext =
+                    new(
+                        window.AudioContext ||
+                        window.webkitAudioContext
+                    )();
+
+
+                if(
+                    audioContext.state ===
+                    "suspended"
+                ){
+
+                    await audioContext.resume();
+
+                }
+
+
+                const source =
+                    audioContext
+                    .createMediaStreamSource(
+                        audioStream
+                    );
+
+
+                analyser =
+                    audioContext
+                    .createAnalyser();
+
+
+                analyser.fftSize =
+                    256;
+
+
+                source.connect(
+                    analyser
+                );
+
+
+                drawWaveform();
+
+
+                /* MEDIA RECORDER */
+
+                let recorderOptions = {};
+
+
+                if(
+                    MediaRecorder.isTypeSupported(
+                        "audio/webm;codecs=opus"
+                    )
+                ){
+
+                    recorderOptions = {
+                        mimeType:
+                            "audio/webm;codecs=opus"
+                    };
+
+                }
+
+
+                mediaRecorder =
+                    new MediaRecorder(
+                        audioStream,
+                        recorderOptions
+                    );
+
+
+                /* AUDIO DATA */
+
+                mediaRecorder.ondataavailable =
+                async function(event){
+
+                    if(
+                        event.data.size > 0 &&
+                        websocket &&
+                        websocket.readyState ===
+                        WebSocket.OPEN
+                    ){
+
+                        chunkCount++;
+
+                        chunks.innerText =
+                            chunkCount;
+
+
+                        const timestamp =
+                            performance.now();
+
+
+                        const metadata = {
+
+                            type:"audio",
+
+                            chunk:
+                                chunkCount,
+
+                            timestamp:
+                                timestamp
+
+                        };
+
+
+                        websocket.send(
+                            JSON.stringify(
+                                metadata
+                            )
+                        );
+
+
+                        const buffer =
+                            await event.data
+                            .arrayBuffer();
+
+
+                        websocket.send(
+                            buffer
+                        );
+
+
+                        addLog(
+                            `📤 Audio chunk ${chunkCount} sent`
+                        );
+
+                    }
+
+                };
+
+
+                /* STOP */
+
+                mediaRecorder.onstop =
+                function(){
+
+                    addLog(
+                        "🛑 Recording stopped"
+                    );
+
+
+                    recording =
+                        false;
+
+
+                    micCircle
+                        .classList
+                        .remove(
+                            "recording"
+                        );
+
+
+                    statusDot
+                        .classList
+                        .remove(
+                            "recording"
+                        );
+
+
+                    statusDot
+                        .classList
+                        .add(
+                            "online"
+                        );
+
+
+                    systemStatus.innerText =
+                        "TRANSCRIBING...";
+
+
+                    connection.innerText =
+                        "PROCESSING";
+
+
+                    micSubtitle.innerText =
+                        "🤖 Whisper is transcribing...";
+
+
+                    clearInterval(
+                        durationTimer
+                    );
+
+
+                    if(
+                        websocket &&
+                        websocket.readyState ===
+                        WebSocket.OPEN
+                    ){
+
+                        websocket.send(
+                            JSON.stringify({
+                                type:"stop"
+                            })
+                        );
+
+
+                        addLog(
+                            "📤 Stop signal sent"
+                        );
+
+                    }
+
+
+                    finishLocalStop();
+
+                };
+
+
+                /* START RECORDING */
+
+                mediaRecorder.start(
+                    500
+                );
+
+
+                recording =
+                    true;
+
+
+                chunkCount =
+                    0;
+
+
+                chunks.innerText =
+                    "0";
+
+
+                startTime =
+                    Date.now();
+
+
+                durationTimer =
+                    setInterval(
+                        updateDuration,
+                        1000
+                    );
+
+
+                startBtn.disabled =
+                    true;
+
+
+                stopBtn.disabled =
+                    false;
+
+
+                micCircle
+                    .classList
+                    .add(
+                        "recording"
+                    );
+
+
+                statusDot
+                    .classList
+                    .add(
+                        "recording"
+                    );
+
+
+                systemStatus.innerText =
+                    "RECORDING";
+
+
+                connection.innerText =
+                    "ONLINE";
+
+
+                micSubtitle.innerText =
+                    "🔴 Recording live...";
+
+
+                transcriptionBox.innerHTML =
+                    `
+                    <div class="placeholder">
+                        🎙️ Listening...
+                        <br><br>
+                        Speak clearly.
+                    </div>
+                    `;
+
+
+                addLog(
+                    "🎙️ Real-time recording started"
+                );
+
+            }
+
+            catch(error){
+
+                addLog(
+                    "❌ Microphone error: " +
+                    error.message
+                );
+
+
+                systemStatus.innerText =
+                    "MIC ERROR";
+
+
+                connection.innerText =
+                    "ERROR";
+
+
+                if(websocket){
+                    websocket.close();
+                }
+
+            }
+
+        };
+
+
+        /* MESSAGE */
+
+        websocket.onmessage =
+        function(event){
+
+            try{
+
+                const data =
+                    JSON.parse(
+                        event.data
+                    );
+
+
+                if(
+                    data.type ===
+                    "ready_for_audio"
+                ){
+
+                    addLog(
+                        `📡 Backend ready for chunk ${data.chunk}`
+                    );
+
+                }
+
+
+                else if(
+                    data.type ===
+                    "processed"
+                ){
+
+                    addLog(
+                        `🤖 Chunk ${data.chunk} processed`
+                    );
+
+                }
+
+
+                else if(
+                    data.type ===
+                    "transcription"
+                ){
+
+                    const text =
+                        data.text || "";
+
+
+                    if(
+                        text.trim() !== ""
+                    ){
+
+                        transcriptionBox.innerHTML =
+                            `
+                            <div class="final-text">
+                                ${escapeHTML(text)}
+                            </div>
+                            `;
+
+                    }
+
+                    else{
+
+                        transcriptionBox.innerHTML =
+                            `
+                            <div class="placeholder">
+                                No speech detected.
+                            </div>
+                            `;
+
+                    }
+
+
+                    systemStatus.innerText =
+                        "SESSION COMPLETE";
+
+
+                    connection.innerText =
+                        "ONLINE";
+
+
+                    micSubtitle.innerText =
+                        "Transcription complete";
+
+
+                    latency.innerText =
+                        "LIVE";
+
+
+                    addLog(
+                        "✅ Whisper transcription received"
+                    );
+
+                }
+
+
+                else if(
+                    data.type ===
+                    "error"
+                ){
+
+                    addLog(
+                        "❌ Backend: " +
+                        data.message
+                    );
+
+
+                    systemStatus.innerText =
+                        "BACKEND ERROR";
+
+
+                    connection.innerText =
+                        "ERROR";
+
+                }
+
+            }
+
+            catch(error){
+
+                addLog(
+                    "⚠️ Invalid backend response"
+                );
+
+            }
+
+        };
+
+
+        /* ERROR */
+
+        websocket.onerror =
+        function(){
+
+            addLog(
+                "❌ WebSocket connection error"
+            );
+
+
+            systemStatus.innerText =
+                "CONNECTION ERROR";
+
+
+            connection.innerText =
+                "ERROR";
+
+
+            statusDot
+                .classList
+                .remove(
+                    "online"
+                );
+
+        };
+
+
+        /* CLOSE */
+
+        websocket.onclose =
+        function(){
+
+            if(recording){
+
+                systemStatus.innerText =
+                    "DISCONNECTED";
+
+
+                connection.innerText =
+                    "OFFLINE";
+
+
+                addLog(
+                    "🔴 Backend disconnected"
+                );
+
+            }
+
+            else{
+
+                addLog(
+                    "🔌 WebSocket connection closed"
+                );
+
+            }
+
+        };
+
+    }
+
+    catch(error){
+
+        addLog(
+            "❌ Error: " +
+            error.message
+        );
+
+    }
+
+};
+
+
+/* =====================================================
+   STOP
+   ===================================================== */
+
+stopBtn.onclick =
+function(){
+
+    if(
+        mediaRecorder &&
+        mediaRecorder.state !==
+        "inactive"
+    ){
+
+        addLog(
+            "⏳ Stopping recorder..."
+        );
+
+
+        mediaRecorder.requestData();
+
+        mediaRecorder.stop();
+
+    }
+
+    else{
+
+        finishLocalStop();
+
+    }
+
+};
+
+
+/* =====================================================
+   CLEANUP
+   ===================================================== */
+
+function finishLocalStop(){
+
+    if(audioStream){
+
+        audioStream
+            .getTracks()
+            .forEach(
+                track =>
+                    track.stop()
+            );
+
+        audioStream =
+            null;
+
+    }
+
+
+    if(audioContext){
+
+        audioContext.close();
+
+        audioContext =
+            null;
+
+    }
+
+
+    analyser =
+        null;
+
+
+    cancelAnimationFrame(
+        animationId
+    );
+
+
+    clearInterval(
+        durationTimer
+    );
+
+
+    startBtn.disabled =
+        false;
+
+
+    stopBtn.disabled =
+        true;
+
+
+    micCircle
+        .classList
+        .remove(
+            "recording"
+        );
+
+
+    statusDot
+        .classList
+        .remove(
+            "recording"
+        );
+
+
+    statusDot
+        .classList
+        .add(
+            "online"
+        );
+
+}
+
+
+/* =====================================================
+   DURATION
+   ===================================================== */
+
+function updateDuration(){
+
+    if(!startTime){
+        return;
+    }
+
+
+    const seconds =
+        Math.floor(
+            (
+                Date.now() -
+                startTime
+            ) / 1000
+        );
+
+
+    const minutes =
+        Math.floor(
+            seconds / 60
+        );
+
+
+    const remaining =
+        seconds % 60;
+
+
+    duration.innerText =
+        String(minutes)
+        .padStart(2,"0")
+        +
+        ":" +
+        String(remaining)
+        .padStart(2,"0");
+
+}
+
+
+/* =====================================================
+   WAVEFORM
+   ===================================================== */
+
+function drawWaveform(){
+
+    const canvas =
+        document.getElementById(
+            "waveCanvas"
+        );
+
+
+    const ctx =
+        canvas.getContext(
+            "2d"
+        );
+
+
+    canvas.width =
+        canvas.clientWidth;
+
+
+    canvas.height =
+        canvas.clientHeight;
+
+
+    if(!analyser){
+        return;
+    }
+
+
+    const dataArray =
+        new Uint8Array(
+            analyser.frequencyBinCount
+        );
+
+
+    function draw(){
+
+        animationId =
+            requestAnimationFrame(
+                draw
+            );
+
+
+        if(!analyser){
+            return;
+        }
+
+
+        analyser.getByteTimeDomainData(
+            dataArray
+        );
+
+
+        ctx.clearRect(
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+
+        ctx.beginPath();
+
+
+        const sliceWidth =
+            canvas.width /
+            dataArray.length;
+
+
+        let x = 0;
+
+
+        for(
+            let i = 0;
+            i < dataArray.length;
+            i++
+        ){
+
+            const v =
+                dataArray[i] /
+                128.0;
+
+
+            const y =
+                v *
+                canvas.height /
+                2;
+
+
+            if(i === 0){
+
+                ctx.moveTo(
+                    x,
+                    y
+                );
+
+            }
+
+            else{
+
+                ctx.lineTo(
+                    x,
+                    y
+                );
+
+            }
+
+
+            x += sliceWidth;
+
+        }
+
+
+        ctx.strokeStyle =
+            "#00c6ff";
+
+
+        ctx.lineWidth =
+            2;
+
+
+        ctx.stroke();
+
+    }
+
+
+    draw();
+
+}
+
+
+/* =====================================================
+   SECURITY
+   ===================================================== */
+
+function escapeHTML(text){
+
+    return String(text)
+
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        )
+
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+</script>
+
+</body>
+
+</html>
