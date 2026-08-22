@@ -32,7 +32,7 @@ os.makedirs(TRANSCRIPT_FOLDER, exist_ok=True)
 
 print("🤖 Loading Whisper model...")
 
-model = whisper.load_model("base")
+model = whisper.load_model("tiny")
 
 print("✅ Whisper model loaded!")
 
